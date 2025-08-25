@@ -1,6 +1,6 @@
 # Gomoku iOS App
 
-A SwiftUI-based iOS implementation of the classic Gomoku (Five in a Row) board game.
+A SwiftUI-based iOS implementation of the classic Gomoku (Five in a Row 五子棋) board game.
 
 ## 🎮 About
 
