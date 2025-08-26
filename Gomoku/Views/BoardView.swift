@@ -37,10 +37,10 @@ struct BoardView: View {
                             case .empty:
                                 EmptyView()
                             case .stone(let player):
-                                Circle()
-                                    .fill(player == .black ? Color.black : Color.white)
-                                    .overlay(Circle().stroke(Color.black.opacity(0.6), lineWidth: 1))
-                                    .frame(width: cellSize * 0.8, height: cellSize * 0.8)
+                                Image(player == .black ? "black" : "white")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: cellSize, height: cellSize)
                                     .position(x: x, y: y)
                             }
                         }
