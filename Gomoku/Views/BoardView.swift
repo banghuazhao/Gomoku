@@ -7,31 +7,50 @@ import SwiftUI
 struct BoardView: View {
     @ObservedObject var model: GameModel
 
-    private let gridColor = Color.secondary.opacity(0.6)
-
     var body: some View {
         GeometryReader { geo in
             let size = min(geo.size.width, geo.size.height)
-            let cellSize = size / CGFloat(model.board.size)
+            let cellSize = size / CGFloat(model.board.size + 1)
+            let padding = cellSize / 2
 
             ZStack {
-                // Grid
+                // Board - wooden board with grid and star points
+                Image("board")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size, height: size)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                
                 Path { path in
                     for i in 0...model.board.size {
-                        let p = CGFloat(i) * cellSize
-                        path.move(to: CGPoint(x: 0, y: p))
-                        path.addLine(to: CGPoint(x: size, y: p))
-                        path.move(to: CGPoint(x: p, y: 0))
-                        path.addLine(to: CGPoint(x: p, y: size))
+                        let p = CGFloat(i) * cellSize + padding
+                        path.move(to: CGPoint(x: padding, y: p))
+                        path.addLine(to: CGPoint(x: size - padding, y: p))
+                        path.move(to: CGPoint(x: p, y: padding))
+                        path.addLine(to: CGPoint(x: p, y: size - padding))
                     }
                 }
-                .stroke(gridColor, lineWidth: 1)
+                .stroke(Color.black, lineWidth: 0.8)
+                .shadow(color: .white.opacity(0.5), radius: 1, x: 1, y: 1)
+
+                // Star points (hoshi)
+                ForEach([3, 12], id: \.self) { row in
+                    ForEach([3, 12], id: \.self) { col in
+                        Circle()
+                            .fill(Color.black)
+                            .frame(width: 6, height: 6)
+                            .position(
+                                x: CGFloat(col) * cellSize + padding,
+                                y: CGFloat(row) * cellSize + padding
+                            )
+                    }
+                }
 
                 // Stones
                 ForEach(0..<model.board.size, id: \.self) { r in
                     ForEach(0..<model.board.size, id: \.self) { c in
-                        let x = (CGFloat(c) + 0.5) * cellSize
-                        let y = (CGFloat(r) + 0.5) * cellSize
+                        let x = CGFloat(c) * cellSize + padding
+                        let y = CGFloat(r) * cellSize + padding
                         Group {
                             switch model.board.cells[r][c] {
                             case .empty:
@@ -71,8 +90,12 @@ struct BoardView: View {
             }
         }
         .aspectRatio(1, contentMode: .fit)
-        .padding()
     }
 }
 
 
+
+#Preview {
+    BoardView(model: GameModel())
+        .padding()
+}

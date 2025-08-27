@@ -8,13 +8,20 @@ struct GameView: View {
     @StateObject private var model = GameModel()
 
     var body: some View {
-        VStack(spacing: 16) {
-            header
-            BoardView(model: model)
-            controls
+        ZStack {
+            Image("background")
+                .resizable()
+                .ignoresSafeArea()
+            
+            VStack(spacing: 16) {
+                header
+                    .padding(.horizontal)
+                BoardView(model: model)
+                    .padding(.horizontal, 8)
+                controls
+            }
+            
         }
-        .padding()
-        .navigationTitle("Gomoku")
     }
 
     private var header: some View {
