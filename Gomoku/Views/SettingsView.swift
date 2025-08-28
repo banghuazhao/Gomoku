@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("boardSize") private var boardSize = 15
     @AppStorage("aiDifficulty") private var aiDifficulty = "Medium"
+    @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     
     var body: some View {
         NavigationStack {
@@ -46,21 +47,17 @@ struct SettingsView: View {
                         }
                         .padding(.horizontal, 20)
                         
-                        SettingRow(
+                        SettingToggleRow(
                             title: "Sound Effects",
-                            subtitle: "On",
+                            isOn: .constant(true),
                             icon: "speaker.wave.2"
-                        ) {
-                            // TODO: Add sound toggle
-                        }
+                        )
                         
-                        SettingRow(
+                        SettingToggleRow(
                             title: "Haptic Feedback",
-                            subtitle: "On",
+                            isOn: $hapticsEnabled,
                             icon: "hand.tap"
-                        ) {
-                            // TODO: Add haptic toggle
-                        }
+                        )
                     }
                     .padding(20)
                     
@@ -117,6 +114,32 @@ struct SettingRow: View {
             }
         }
         .buttonStyle(.woodStyle)
+    }
+}
+
+struct SettingToggleRow: View {
+    let title: String
+    @Binding var isOn: Bool
+    let icon: String
+
+    var body: some View {
+        HStack(spacing: 15) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(.white)
+                .frame(width: 30)
+
+            Toggle(isOn: $isOn) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+            .tint(.white)
+
+            Spacer()
+        }
+        .buttonStyle(.woodStyle)
+        .padding(.vertical, 6)
     }
 }
 

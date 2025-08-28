@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct WoodButtonStyle: ButtonStyle {
     var cornerRadius: CGFloat = 12
@@ -26,6 +27,11 @@ struct WoodButtonStyle: ButtonStyle {
                 color: .black.opacity(configuration.isPressed ? 0.15 : 0.3),
                 radius: configuration.isPressed ? 1 : 3, x: 0, y: configuration.isPressed ? 0 : 2)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                if isPressed {
+                    Haptics.selection()
+                }
+            }
     }
 }
 

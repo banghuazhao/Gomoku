@@ -3,6 +3,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct BoardView: View {
     @ObservedObject var model: GameModel
@@ -87,7 +88,11 @@ struct BoardView: View {
                 guard point.x >= 0 && point.y >= 0 && point.x < size && point.y < size else { return }
                 let col = Int(point.x / cellSize)
                 let row = Int(point.y / cellSize)
-                _ = model.placeStone(row: row, col: col)
+                if model.placeStone(row: row, col: col) {
+                    Haptics.impact(.light)
+                } else {
+                    Haptics.notify(.warning)
+                }
             }
         }
         .aspectRatio(1, contentMode: .fit)
