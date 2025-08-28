@@ -29,23 +29,7 @@ struct SettingsView: View {
                             // TODO: Add board size picker
                         }
                         
-                        // Difficulty Picker
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("AI Difficulty")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            Picker("AI Difficulty", selection: $aiDifficulty) {
-                                ForEach(AIDifficulty.allCases, id: \.rawValue) { level in
-                                    Text(level.rawValue).tag(level.rawValue)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.black.opacity(0.4))
-                            )
-                        }
-                        .padding(.horizontal, 20)
+                        SettingDifficultyRow(selection: $aiDifficulty)
                         
                         SettingToggleRow(
                             title: "Sound Effects",
@@ -134,12 +118,62 @@ struct SettingToggleRow: View {
                     .font(.headline)
                     .foregroundColor(.white)
             }
-            .tint(.white)
 
-            Spacer()
+            Spacer(minLength: 0)
         }
-        .buttonStyle(.woodStyle)
-        .padding(.vertical, 6)
+        .font(.headline)
+        .foregroundColor(.white)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 18)
+        .background(
+            Image("board")
+                .resizable()
+                .scaledToFill()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+    }
+}
+
+struct SettingDifficultyRow: View {
+    @Binding var selection: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "brain.head.profile")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .frame(width: 30)
+
+                Text("AI Difficulty")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+
+            Picker("AI Difficulty", selection: $selection) {
+                ForEach(AIDifficulty.allCases, id: \.rawValue) { level in
+                    Text(level.rawValue).tag(level.rawValue)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 18)
+        .background(
+            Image("board")
+                .resizable()
+                .scaledToFill()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+        .onChange(of: selection) { _, _ in
+            Haptics.selection()
+        }
     }
 }
 
