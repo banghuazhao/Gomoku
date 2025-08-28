@@ -49,8 +49,7 @@ struct SettingsView: View {
                     Spacer()
                 }
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {

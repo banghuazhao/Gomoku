@@ -75,7 +75,7 @@ struct MainMenuView: View {
             .navigationDestination(isPresented: $showingGame) {
                 GameView(gameMode: gameMode)
             }
-            .sheet(isPresented: $showingSettings) {
+            .navigationDestination(isPresented: $showingSettings) {
                 SettingsView()
             }
         }
