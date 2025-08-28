@@ -20,6 +20,7 @@ struct BoardView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: size, height: size)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
                 
                 Path { path in
                     for i in 0...model.board.size {

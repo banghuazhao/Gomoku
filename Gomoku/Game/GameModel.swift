@@ -63,6 +63,7 @@ public final class GameModel: ObservableObject {
         return true
     }
 
+    @discardableResult
     public func undo() -> Bool {
         guard let last = moves.popLast() else { return false }
         board.clear(atRow: last.row, col: last.col)
