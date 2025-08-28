@@ -6,6 +6,11 @@ import SwiftUI
 
 struct GameView: View {
     @StateObject private var model = GameModel()
+    let gameMode: MainMenuView.GameMode
+    
+    init(gameMode: MainMenuView.GameMode = .p2p) {
+        self.gameMode = gameMode
+    }
 
     var body: some View {
         ZStack {
