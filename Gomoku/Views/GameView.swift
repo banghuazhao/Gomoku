@@ -8,6 +8,7 @@ struct GameView: View {
     @StateObject private var model = GameModel()
     @Environment(\.dismiss) private var dismiss
     @AppStorage("aiDifficulty") private var difficultyRaw = "Medium"
+    @AppStorage("boardSize") private var boardSize: Int = 15
     let gameMode: MainMenuView.GameMode
 
     init(gameMode: MainMenuView.GameMode = .p2p) {
@@ -37,12 +38,18 @@ struct GameView: View {
             }
         }
         .onAppear {
+            if model.board.size != boardSize {
+                model.reset(boardSize: boardSize)
+            }
             if gameMode == .singlePlayer {
                 let diff = AIDifficulty(rawValue: difficultyRaw) ?? .medium
                 model.configureSinglePlayer(enabled: true, aiAs: .white, difficulty: diff)
             } else {
                 model.configureSinglePlayer(enabled: false)
             }
+        }
+        .onChange(of: boardSize) { _, newValue in
+            model.reset(boardSize: newValue)
         }
         .onChange(of: difficultyRaw) { _, newValue in
             let diff = AIDifficulty(rawValue: newValue) ?? .medium

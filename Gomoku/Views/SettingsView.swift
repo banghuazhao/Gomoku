@@ -21,13 +21,7 @@ struct SettingsView: View {
                 VStack(spacing: 30) {
                     // Settings Content
                     VStack(spacing: 25) {
-                        SettingRow(
-                            title: "Board Size",
-                            subtitle: "\(boardSize) x \(boardSize)",
-                            icon: "square.grid.3x3"
-                        ) {
-                            // TODO: Add board size picker
-                        }
+                        SettingBoardSizeRow(selection: $boardSize)
                         
                         SettingDifficultyRow(selection: $aiDifficulty)
                         
@@ -156,6 +150,48 @@ struct SettingDifficultyRow: View {
             Picker("AI Difficulty", selection: $selection) {
                 ForEach(AIDifficulty.allCases, id: \.rawValue) { level in
                     Text(level.rawValue).tag(level.rawValue)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 18)
+        .background(
+            Image("board")
+                .resizable()
+                .scaledToFill()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+        .onChange(of: selection) { _, _ in
+            Haptics.selection()
+        }
+    }
+}
+
+struct SettingBoardSizeRow: View {
+    @Binding var selection: Int
+
+    private let options: [Int] = [9, 12, 15]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "square.grid.3x3")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .frame(width: 30)
+
+                Text("Board Size")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+
+            Picker("Board Size", selection: $selection) {
+                ForEach(options, id: \.self) { size in
+                    Text("\(size) x \(size)").tag(size)
                 }
             }
             .pickerStyle(.segmented)

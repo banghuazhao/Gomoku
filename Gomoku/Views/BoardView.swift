@@ -36,8 +36,8 @@ struct BoardView: View {
                 .shadow(color: .white.opacity(0.5), radius: 1, x: 1, y: 1)
 
                 // Star points (hoshi)
-                ForEach([3, 12], id: \.self) { row in
-                    ForEach([3, 12], id: \.self) { col in
+                ForEach([3, model.board.size - 3], id: \.self) { row in
+                    ForEach([3, model.board.size - 3], id: \.self) { col in
                         Circle()
                             .fill(Color.black)
                             .frame(width: 6, height: 6)
