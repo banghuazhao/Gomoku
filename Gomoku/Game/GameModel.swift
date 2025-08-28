@@ -17,6 +17,12 @@ public final class GameModel: ObservableObject {
     private var redoStack: [Move]
     private let rules = RulesEngine()
 
+    // AI
+    public var isSinglePlayer: Bool = false
+    public var aiPlaysAs: Player = .white
+    public var difficulty: AIDifficulty = .medium
+    private var aiTask: Task<Void, Never>?
+
     public init(boardSize: Int = 15, starting: Player = .black) {
         self.board = Board(size: boardSize)
         self.currentPlayer = starting
@@ -27,6 +33,13 @@ public final class GameModel: ObservableObject {
         self.redoStack = []
     }
 
+    public func configureSinglePlayer(enabled: Bool, aiAs player: Player = .white, difficulty: AIDifficulty = .medium) {
+        self.isSinglePlayer = enabled
+        self.aiPlaysAs = player
+        self.difficulty = difficulty
+        maybeTriggerAIMove()
+    }
+
     public func reset(boardSize: Int? = nil, starting: Player = .black) {
         self.board = Board(size: boardSize ?? board.size)
         self.currentPlayer = starting
@@ -35,6 +48,8 @@ public final class GameModel: ObservableObject {
         self.winningLine = []
         self.moves.removeAll()
         self.redoStack.removeAll()
+        aiTask?.cancel()
+        maybeTriggerAIMove()
     }
 
     public func placeStone(row: Int, col: Int) -> Bool {
@@ -51,6 +66,7 @@ public final class GameModel: ObservableObject {
         switch resolution {
         case .ongoing:
             currentPlayer = currentPlayer.opponent
+            maybeTriggerAIMove()
         case .draw:
             isGameOver = true
             winner = nil
@@ -72,6 +88,7 @@ public final class GameModel: ObservableObject {
         winner = nil
         winningLine = []
         currentPlayer = last.player
+        aiTask?.cancel()
         return true
     }
 
@@ -82,6 +99,25 @@ public final class GameModel: ObservableObject {
 
     public func history() -> [Move] {
         return moves
+    }
+
+    private func maybeTriggerAIMove() {
+        guard isSinglePlayer, !isGameOver, currentPlayer == aiPlaysAs else { return }
+        aiTask?.cancel()
+        let snapshot = board
+        let aiPlayer = currentPlayer
+        let diff = difficulty
+        aiTask = Task { [weak self] in
+            guard let self = self else { return }
+            // small delay for UX
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            let choice = AIMoveGenerator.nextMove(for: snapshot, player: aiPlayer, difficulty: diff)
+            await MainActor.run {
+                if let m = choice {
+                    _ = self.placeStone(row: m.row, col: m.col)
+                }
+            }
+        }
     }
 }
 

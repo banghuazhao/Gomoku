@@ -7,6 +7,7 @@ import SwiftUI
 struct GameView: View {
     @StateObject private var model = GameModel()
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("aiDifficulty") private var difficultyRaw = "Medium"
     let gameMode: MainMenuView.GameMode
 
     init(gameMode: MainMenuView.GameMode = .p2p) {
@@ -33,6 +34,20 @@ struct GameView: View {
                     .padding(.horizontal, 16)
 
                 Spacer()
+            }
+        }
+        .onAppear {
+            if gameMode == .singlePlayer {
+                let diff = AIDifficulty(rawValue: difficultyRaw) ?? .medium
+                model.configureSinglePlayer(enabled: true, aiAs: .white, difficulty: diff)
+            } else {
+                model.configureSinglePlayer(enabled: false)
+            }
+        }
+        .onChange(of: difficultyRaw) { _, newValue in
+            let diff = AIDifficulty(rawValue: newValue) ?? .medium
+            if gameMode == .singlePlayer {
+                model.configureSinglePlayer(enabled: true, aiAs: .white, difficulty: diff)
             }
         }
         .navigationBarBackButtonHidden()

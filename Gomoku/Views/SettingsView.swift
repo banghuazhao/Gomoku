@@ -21,12 +21,30 @@ struct SettingsView: View {
                     // Settings Content
                     VStack(spacing: 25) {
                         SettingRow(
-                            title: "AI Difficulty",
-                            subtitle: aiDifficulty,
-                            icon: "brain.head.profile"
+                            title: "Board Size",
+                            subtitle: "\(boardSize) x \(boardSize)",
+                            icon: "square.grid.3x3"
                         ) {
-                            // TODO: Add AI difficulty picker
+                            // TODO: Add board size picker
                         }
+                        
+                        // Difficulty Picker
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("AI Difficulty")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Picker("AI Difficulty", selection: $aiDifficulty) {
+                                ForEach(AIDifficulty.allCases, id: \.rawValue) { level in
+                                    Text(level.rawValue).tag(level.rawValue)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.black.opacity(0.4))
+                            )
+                        }
+                        .padding(.horizontal, 20)
                         
                         SettingRow(
                             title: "Sound Effects",
