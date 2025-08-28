@@ -21,14 +21,6 @@ struct SettingsView: View {
                     // Settings Content
                     VStack(spacing: 25) {
                         SettingRow(
-                            title: "Board Size",
-                            subtitle: "\(boardSize) x \(boardSize)",
-                            icon: "square.grid.3x3"
-                        ) {
-                            // TODO: Add board size picker
-                        }
-                        
-                        SettingRow(
                             title: "AI Difficulty",
                             subtitle: aiDifficulty,
                             icon: "brain.head.profile"
@@ -52,7 +44,7 @@ struct SettingsView: View {
                             // TODO: Add haptic toggle
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(20)
                     
                     Spacer()
                 }
@@ -60,11 +52,17 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: {
                         dismiss()
+                    }) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "chevron.left")
+                                .font(.headline)
+                            Text("Menu")
+                        }
                     }
-                    .foregroundColor(.white)
+                    .buttonStyle(.woodStyle)
                 }
             }
         }
@@ -100,18 +98,8 @@ struct SettingRow: View {
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.6))
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 15)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                    )
-            )
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.woodStyle)
     }
 }
 

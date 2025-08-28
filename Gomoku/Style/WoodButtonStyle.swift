@@ -21,6 +21,7 @@ struct WoodButtonStyle: ButtonStyle {
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
             )
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
             .shadow(
                 color: .black.opacity(configuration.isPressed ? 0.15 : 0.3),
                 radius: configuration.isPressed ? 1 : 3, x: 0, y: configuration.isPressed ? 0 : 2)

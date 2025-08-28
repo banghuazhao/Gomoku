@@ -111,18 +111,8 @@ struct MenuButton: View {
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.6))
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 15)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                    )
-            )
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.woodStyle)
     }
 }
 
