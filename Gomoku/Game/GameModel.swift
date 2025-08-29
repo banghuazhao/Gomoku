@@ -113,6 +113,15 @@ public final class GameModel: ObservableObject {
         winningLine = []
         currentPlayer = last.player
         aiTask?.cancel()
+        
+        // In single player mode, also first undo the AI's move then player's move
+        if isSinglePlayer && !moves.isEmpty {
+            guard let playerMove = moves.popLast() else { return true }
+            board.clear(atRow: playerMove.row, col: playerMove.col)
+            redoStack.append(playerMove)
+            currentPlayer = playerMove.player
+        }
+        
         return true
     }
 
