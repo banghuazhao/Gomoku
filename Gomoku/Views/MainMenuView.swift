@@ -78,6 +78,9 @@ struct MainMenuView: View {
             .navigationDestination(isPresented: $showingSettings) {
                 SettingsView()
             }
+            .onAppear {
+                AudioManager.shared.playBackgroundMusic()
+            }
         }
     }
 }

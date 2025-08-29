@@ -39,9 +39,6 @@ struct GameView: View {
             }
         }
         .onAppear {
-            // Start background music
-            AudioManager.shared.playBackgroundMusic()
-            
             if model.board.size != boardSize {
                 model.reset(boardSize: boardSize)
             }

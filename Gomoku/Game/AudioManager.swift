@@ -52,7 +52,7 @@ class AudioManager: ObservableObject {
         do {
             backgroundPlayer = try AVAudioPlayer(contentsOf: url)
             backgroundPlayer?.numberOfLoops = -1 // Loop indefinitely
-            backgroundPlayer?.volume = 1.0
+            backgroundPlayer?.volume = 0.6
             backgroundPlayer?.play()
         } catch {
             print("Failed to play background music: \(error)")
@@ -111,7 +111,7 @@ class AudioManager: ObservableObject {
     }
     
     func playGameStart() {
-        playSoundEffect("gameStart", volume: 0.9)
+        playSoundEffect("gameStart", volume: 1.0)
     }
     
     func playWin() {
