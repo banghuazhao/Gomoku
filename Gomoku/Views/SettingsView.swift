@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("boardSize") private var boardSize = 15
     @AppStorage("aiDifficulty") private var aiDifficulty = "Medium"
+    @AppStorage("whoGoesFirst") private var whoGoesFirst = "Player"
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
     @StateObject private var audioManager = AudioManager.shared
     
@@ -25,6 +26,8 @@ struct SettingsView: View {
                         SettingBoardSizeRow(selection: $boardSize)
                         
                         SettingDifficultyRow(selection: $aiDifficulty)
+                        
+                        SettingWhoGoesFirstRow(selection: $whoGoesFirst)
                         
                         SettingToggleRow(
                             title: "Sound Effects",
@@ -195,6 +198,45 @@ struct SettingBoardSizeRow: View {
                 ForEach(options, id: \.self) { size in
                     Text("\(size) x \(size)").tag(size)
                 }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 18)
+        .background(
+            Image("board")
+                .resizable()
+                .scaledToFill()
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+        .onChange(of: selection) { _, _ in
+            Haptics.selection()
+        }
+    }
+}
+
+struct SettingWhoGoesFirstRow: View {
+    @Binding var selection: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "person.2.circle")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .frame(width: 30)
+
+                Text("Who Goes First")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+
+            Picker("Who Goes First", selection: $selection) {
+                Text("Player").tag("Player")
+                Text("AI").tag("AI")
             }
             .pickerStyle(.segmented)
         }

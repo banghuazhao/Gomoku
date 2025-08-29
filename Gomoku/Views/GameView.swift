@@ -9,6 +9,7 @@ struct GameView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("aiDifficulty") private var difficultyRaw = "Medium"
     @AppStorage("boardSize") private var boardSize: Int = 15
+    @AppStorage("whoGoesFirst") private var whoGoesFirst = "Player"
     let gameMode: MainMenuView.GameMode
 
     init(gameMode: MainMenuView.GameMode = .p2p) {
@@ -46,7 +47,9 @@ struct GameView: View {
             }
             if gameMode == .singlePlayer {
                 let diff = AIDifficulty(rawValue: difficultyRaw) ?? .medium
+                let startingPlayer: Player = whoGoesFirst == "AI" ? .white : .black
                 model.configureSinglePlayer(enabled: true, aiAs: .white, difficulty: diff)
+                model.reset(boardSize: boardSize, starting: startingPlayer)
             } else {
                 model.configureSinglePlayer(enabled: false)
             }
@@ -58,6 +61,12 @@ struct GameView: View {
             let diff = AIDifficulty(rawValue: newValue) ?? .medium
             if gameMode == .singlePlayer {
                 model.configureSinglePlayer(enabled: true, aiAs: .white, difficulty: diff)
+            }
+        }
+        .onChange(of: whoGoesFirst) { _, newValue in
+            if gameMode == .singlePlayer {
+                let startingPlayer: Player = newValue == "AI" ? .white : .black
+                model.reset(boardSize: boardSize, starting: startingPlayer)
             }
         }
         .navigationBarBackButtonHidden()
@@ -79,7 +88,12 @@ struct GameView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button("Restart") {
                     AudioManager.shared.playButtonTap()
-                    model.reset()
+                    if gameMode == .singlePlayer {
+                        let startingPlayer: Player = whoGoesFirst == "AI" ? .white : .black
+                        model.reset(boardSize: boardSize, starting: startingPlayer)
+                    } else {
+                        model.reset()
+                    }
                 }
                 .buttonStyle(.woodStyle)
 

@@ -41,9 +41,9 @@ public final class GameModel: ObservableObject {
         maybeTriggerAIMove()
     }
 
-    public func reset(boardSize: Int? = nil, starting: Player = .black) {
+    public func reset(boardSize: Int? = nil, starting: Player? = nil) {
         self.board = Board(size: boardSize ?? board.size)
-        self.currentPlayer = starting
+        self.currentPlayer = starting ?? .black
         self.isGameOver = false
         self.winner = nil
         self.winningLine = []
