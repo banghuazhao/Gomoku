@@ -57,12 +57,21 @@ struct BoardView: View {
                             switch model.board.cells[r][c] {
                             case .empty:
                                 EmptyView()
-                            case .stone(let player):
-                                Image(player == .black ? "black" : "white")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: cellSize, height: cellSize)
-                                    .position(x: x, y: y)
+                            case .stone(let player, let isMarked):
+                                ZStack {
+                                    Image(player == .black ? "black" : "white")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: cellSize, height: cellSize)
+                                    
+                                    if isMarked {
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: cellSize * 0.15, height: cellSize * 0.15)
+                                            .shadow(color: .white, radius: 1)
+                                    }
+                                }
+                                .position(x: x, y: y)
                             }
                         }
                     }

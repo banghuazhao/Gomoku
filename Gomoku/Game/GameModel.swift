@@ -114,12 +114,20 @@ public final class GameModel: ObservableObject {
         currentPlayer = last.player
         aiTask?.cancel()
         
+        
         // In single player mode, also first undo the AI's move then player's move
         if isSinglePlayer && !moves.isEmpty {
             guard let playerMove = moves.popLast() else { return true }
             board.clear(atRow: playerMove.row, col: playerMove.col)
             redoStack.append(playerMove)
             currentPlayer = playerMove.player
+        }
+        
+        // Restore the last move marking if there are remaining moves
+        if let lastRemainingMove = moves.last {
+            var mutableBoard = board
+            mutableBoard.markAsLastMove(lastRemainingMove)
+            board = mutableBoard
         }
         
         return true

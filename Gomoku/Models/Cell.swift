@@ -8,5 +8,5 @@ import Foundation
 
 public enum Cell: Codable, Equatable {
     case empty
-    case stone(Player)
+    case stone(Player, isMarked: Bool = false)
 }

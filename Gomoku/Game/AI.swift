@@ -111,18 +111,18 @@ struct AIMoveGenerator {
         var score = 0
         for r in 0..<board.size {
             for c in 0..<board.size {
-                if case .stone(player) = board.cells[r][c] {
+                if case .stone(player, _) = board.cells[r][c] {
                     for (dr,dc) in dirs {
                         var count = 1
                         var openEnds = 0
                         var rr = r + dr, cc = c + dc
-                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player) = board.cells[rr][cc] {
+                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player, _) = board.cells[rr][cc] {
                             count += 1
                             rr += dr; cc += dc
                         }
                         if rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .empty = board.cells[rr][cc] { openEnds += 1 }
                         rr = r - dr; cc = c - dc
-                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player) = board.cells[rr][cc] {
+                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player, _) = board.cells[rr][cc] {
                             count += 1
                             rr -= dr; cc -= dc
                         }
@@ -347,13 +347,13 @@ struct AIMoveGenerator {
         var score = 0
         for r in 0..<board.size {
             for c in 0..<board.size {
-                if case .stone(player) = board.cells[r][c] {
+                if case .stone(player, _) = board.cells[r][c] {
                     for (dr,dc) in directions {
                         // Count contiguous in both directions and openness
                         var count = 1
                         var openEnds = 0
                         var rr = r + dr, cc = c + dc
-                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player) = board.cells[rr][cc] {
+                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player, _) = board.cells[rr][cc] {
                             count += 1
                             rr += dr; cc += dc
                         }
@@ -361,7 +361,7 @@ struct AIMoveGenerator {
                             if case .empty = board.cells[rr][cc] { openEnds += 1 }
                         }
                         rr = r - dr; cc = c - dc
-                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player) = board.cells[rr][cc] {
+                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player, _) = board.cells[rr][cc] {
                             count += 1
                             rr -= dr; cc -= dc
                         }
@@ -404,7 +404,7 @@ struct AIMoveGenerator {
             }
             switch board.cells[r][c] {
             case .empty: stones.append(0)
-            case .stone(player): stones.append(1)
+            case .stone(player, _): stones.append(1)
             default: stones.append(-1)
             }
         }
@@ -439,8 +439,8 @@ struct AIMoveGenerator {
             for c in 0..<board.size {
                 let idx = r * board.size + c
                 switch board.cells[r][c] {
-                case .stone(.black): h ^= table[idx][0]
-                case .stone(.white): h ^= table[idx][1]
+                case .stone(.black, _): h ^= table[idx][0]
+                case .stone(.white, _): h ^= table[idx][1]
                 default: break
                 }
             }

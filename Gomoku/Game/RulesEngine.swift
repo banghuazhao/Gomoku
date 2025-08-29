@@ -56,7 +56,7 @@ public struct RulesEngine {
         // extend positive direction
         var r = move.row + dr
         var c = move.col + dc
-        while board.isInBounds(row: r, col: c), case .stone(move.player) = board.cells[r][c] {
+        while board.isInBounds(row: r, col: c), case .stone(move.player, _) = board.cells[r][c] {
             result.append(Move(player: move.player, row: r, col: c))
             r += dr
             c += dc
@@ -64,7 +64,7 @@ public struct RulesEngine {
         // extend negative direction
         r = move.row - dr
         c = move.col - dc
-        while board.isInBounds(row: r, col: c), case .stone(move.player) = board.cells[r][c] {
+        while board.isInBounds(row: r, col: c), case .stone(move.player, _) = board.cells[r][c] {
             result.insert(Move(player: move.player, row: r, col: c), at: 0)
             r -= dr
             c -= dc
