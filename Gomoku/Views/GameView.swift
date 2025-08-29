@@ -38,6 +38,9 @@ struct GameView: View {
             }
         }
         .onAppear {
+            // Start background music
+            AudioManager.shared.playBackgroundMusic()
+            
             if model.board.size != boardSize {
                 model.reset(boardSize: boardSize)
             }
@@ -61,6 +64,7 @@ struct GameView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
+                    AudioManager.shared.playButtonTap()
                     dismiss()
                 }) {
                     HStack(spacing: 5) {
@@ -74,11 +78,13 @@ struct GameView: View {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button("Restart") {
+                    AudioManager.shared.playButtonTap()
                     model.reset()
                 }
                 .buttonStyle(.woodStyle)
 
                 Button("Undo") {
+                    AudioManager.shared.playButtonTap()
                     model.undo()
                 }
                 .buttonStyle(.woodStyle)

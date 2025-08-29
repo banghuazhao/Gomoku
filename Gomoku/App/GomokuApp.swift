@@ -8,9 +8,12 @@ import SwiftUI
 
 @main
 struct GomokuApp: App {
+    @StateObject private var audioManager = AudioManager.shared
+    
     var body: some Scene {
         WindowGroup {
             MainMenuView()
+                .environmentObject(audioManager)
         }
     }
 }

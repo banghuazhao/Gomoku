@@ -31,6 +31,7 @@ public final class GameModel: ObservableObject {
         self.winningLine = []
         self.moves = []
         self.redoStack = []
+        AudioManager.shared.playGameStart()
     }
 
     public func configureSinglePlayer(enabled: Bool, aiAs player: Player = .white, difficulty: AIDifficulty = .medium) {
@@ -49,6 +50,10 @@ public final class GameModel: ObservableObject {
         self.moves.removeAll()
         self.redoStack.removeAll()
         aiTask?.cancel()
+        
+        // Play game start sound
+        AudioManager.shared.playGameStart()
+        
         maybeTriggerAIMove()
     }
 
@@ -62,6 +67,9 @@ public final class GameModel: ObservableObject {
         moves.append(move)
         redoStack.removeAll()
 
+        // Play stone placement sound
+        AudioManager.shared.playStonePlacement()
+
         let resolution = rules.evaluateBoardAfterMove(board: board, lastMove: move)
         switch resolution {
         case .ongoing:
@@ -71,10 +79,26 @@ public final class GameModel: ObservableObject {
             isGameOver = true
             winner = nil
             winningLine = []
+            AudioManager.shared.playTie()
         case .win(let result):
             isGameOver = true
             winner = result.winner
             winningLine = result.line
+            
+            // Play appropriate sound based on game mode and winner
+            if isSinglePlayer {
+                // In single player mode, AI plays as white, human as black
+                if result.winner == aiPlaysAs {
+                    // AI won - play lose sound for human player
+                    AudioManager.shared.playLose()
+                } else {
+                    // Human won - play win sound
+                    AudioManager.shared.playWin()
+                }
+            } else {
+                // Two player mode - always play win sound
+                AudioManager.shared.playWin()
+            }
         }
         return true
     }

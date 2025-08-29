@@ -89,7 +89,10 @@ struct MenuButton: View {
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            AudioManager.shared.playButtonTap()
+            action()
+        }) {
             HStack(spacing: 15) {
                 Image(systemName: icon)
                     .font(.title2)

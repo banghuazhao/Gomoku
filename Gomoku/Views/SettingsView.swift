@@ -9,6 +9,7 @@ struct SettingsView: View {
     @AppStorage("boardSize") private var boardSize = 15
     @AppStorage("aiDifficulty") private var aiDifficulty = "Medium"
     @AppStorage("hapticsEnabled") private var hapticsEnabled: Bool = true
+    @StateObject private var audioManager = AudioManager.shared
     
     var body: some View {
         NavigationStack {
@@ -27,7 +28,7 @@ struct SettingsView: View {
                         
                         SettingToggleRow(
                             title: "Sound Effects",
-                            isOn: .constant(true),
+                            isOn: $audioManager.isSoundEnabled,
                             icon: "speaker.wave.2"
                         )
                         
@@ -46,6 +47,7 @@ struct SettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
+                        AudioManager.shared.playButtonTap()
                         dismiss()
                     }) {
                         HStack(spacing: 5) {
