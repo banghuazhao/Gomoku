@@ -8,6 +8,7 @@ public enum AIDifficulty: String, CaseIterable, Codable {
     case easy = "Easy"
     case medium = "Medium"
     case hard = "Hard"
+    case superHard = "Super Hard"
 }
 
 struct AIMoveGenerator {
@@ -30,6 +31,8 @@ struct AIMoveGenerator {
             return bestHeuristicMove(board: board, player: player, candidates: candidates)
         case .hard:
             return minimaxBestMove(board: board, player: player, candidates: candidates, depth: 2)
+        case .superHard:
+            return superHardBestMove(board: board, player: player, candidates: candidates)
         }
     }
     
@@ -194,5 +197,254 @@ struct AIMoveGenerator {
             }
             return minEval
         }
+    }
+
+    // MARK: - Super Hard: Negamax + Alpha-Beta + Iterative Deepening + TT
+    private struct TTEntry {
+        enum Bound { case exact, lower, upper }
+        let value: Int
+        let depth: Int
+        let bound: Bound
+        let bestMove: (row: Int, col: Int)?
+    }
+
+    private static func superHardBestMove(board: Board, player: Player, candidates: [(row: Int, col: Int)], timeLimitMs: Int = 400) -> Move? {
+        // Immediate win/block already handled by caller
+        var ordered = orderCandidates(board: board, player: player, candidates: candidates)
+        // Iterative deepening
+        let deadline = DispatchTime.now() + .milliseconds(timeLimitMs)
+        var tt: [UInt64: TTEntry] = [:]
+        var best: (row: Int, col: Int)? = ordered.first
+        var bestScore = Int.min
+        var depth = 2
+        while depth <= 6 { // practical cap
+            var timedOut = false
+            bestScore = Int.min
+            var localBest: (row: Int, col: Int)? = nil
+            for move in ordered {
+                if DispatchTime.now() >= deadline { timedOut = true; break }
+                var b = board
+                _ = b.place(Move(player: player, row: move.row, col: move.col))
+                let score = -negamax(board: b, playerToMaximize: player, currentPlayer: player.opponent, depth: depth - 1, alpha: -1_000_000_000, beta: 1_000_000_000, tt: &tt, deadline: deadline)
+                if score > bestScore {
+                    bestScore = score
+                    localBest = move
+                }
+            }
+            if let lb = localBest { best = lb }
+            if timedOut { break }
+            // Reorder by TT/last best for next iteration (move ordering)
+            if let bmv = best {
+                ordered.sort { lhs, rhs in
+                    if lhs.row == bmv.row && lhs.col == bmv.col { return true }
+                    if rhs.row == bmv.row && rhs.col == bmv.col { return false }
+                    let sl = staticHeuristic(board: board, player: player, row: lhs.row, col: lhs.col)
+                    let sr = staticHeuristic(board: board, player: player, row: rhs.row, col: rhs.col)
+                    return sl > sr
+                }
+            }
+            depth += 1
+        }
+        if let best = best { return Move(player: player, row: best.row, col: best.col) }
+        return candidates.randomElement().map { Move(player: player, row: $0.row, col: $0.col) }
+    }
+
+    private static func negamax(board: Board, playerToMaximize: Player, currentPlayer: Player, depth: Int, alpha: Int, beta: Int, tt: inout [UInt64: TTEntry], deadline: DispatchTime) -> Int {
+        if DispatchTime.now() >= deadline { return evaluateStatic(board: board, player: playerToMaximize) }
+        let rules = RulesEngine()
+        // Terminal check by quick scan of last move is unavailable; use evaluation at depth==0
+        if depth == 0 { return evaluateStatic(board: board, player: playerToMaximize) }
+
+        let hash = zobristHash(board: board)
+        if let entry = tt[hash], entry.depth >= depth {
+            switch entry.bound {
+            case .exact: return entry.value
+            case .lower: if entry.value > beta { return entry.value }
+            case .upper: if entry.value < alpha { return entry.value }
+            }
+        }
+
+        var alphaVar = alpha
+        let alphaStart = alpha
+        var bestValue = Int.min
+        var bestMove: (row: Int, col: Int)? = nil
+        // Move ordering: immediate tactical, then heuristic
+        var candidates = candidatePositions(board: board)
+        if candidates.isEmpty { return 0 }
+        candidates = orderCandidates(board: board, player: currentPlayer, candidates: candidates)
+
+        var exploredAny = false
+        for cand in candidates {
+            if DispatchTime.now() >= deadline { break }
+            var b = board
+            let move = Move(player: currentPlayer, row: cand.row, col: cand.col)
+            _ = b.place(move)
+            // Early win pruning
+            if case .win = rules.evaluateBoardAfterMove(board: b, lastMove: move) {
+                return currentPlayer == playerToMaximize ? 100000 : -100000
+            }
+            let score = -negamax(board: b, playerToMaximize: playerToMaximize, currentPlayer: currentPlayer.opponent, depth: depth - 1, alpha: -beta, beta: -alphaVar, tt: &tt, deadline: deadline)
+            if score > bestValue {
+                bestValue = score
+                bestMove = cand
+            }
+            if bestValue > alphaVar { alphaVar = bestValue }
+            if alphaVar >= beta { break }
+            exploredAny = true
+        }
+
+        if !exploredAny {
+            return evaluateStatic(board: board, player: playerToMaximize)
+        }
+
+        // Store in TT
+        let entryBound: TTEntry.Bound
+        if bestValue <= alphaStart { entryBound = .upper }
+        else if bestValue >= beta { entryBound = .lower }
+        else { entryBound = .exact }
+        tt[hash] = TTEntry(value: bestValue, depth: depth, bound: entryBound, bestMove: bestMove)
+        return bestValue
+    }
+
+    // MARK: - Move Ordering and Heuristics
+    private static func orderCandidates(board: Board, player: Player, candidates: [(row: Int, col: Int)]) -> [(row: Int, col: Int)] {
+        // Score each candidate using static pattern heuristic and distance to center
+        let center = Double(board.size - 1) / 2.0
+        return candidates.sorted { a, b in
+            let sa = staticHeuristic(board: board, player: player, row: a.row, col: a.col) + centerBias(row: a.row, col: a.col, center: center)
+            let sb = staticHeuristic(board: board, player: player, row: b.row, col: b.col) + centerBias(row: b.row, col: b.col, center: center)
+            return sa > sb
+        }
+    }
+
+    private static func centerBias(row: Int, col: Int, center: Double) -> Int {
+        let dr = Double(row) - center
+        let dc = Double(col) - center
+        let dist2 = dr*dr + dc*dc
+        // closer to center slightly preferred
+        return Int(50.0 / (1.0 + dist2))
+    }
+
+    private static func staticHeuristic(board: Board, player: Player, row: Int, col: Int) -> Int {
+        var b = board
+        if !b.place(Move(player: player, row: row, col: col)) { return Int.min/4 }
+        // Mix offensive and defensive pressure
+        let off = evaluatePatterns(board: b, player: player)
+        let def = evaluatePatterns(board: b, player: player.opponent)
+        return off * 1 - def
+    }
+
+    private static func evaluateStatic(board: Board, player: Player) -> Int {
+        // More granular scoring than the medium/hard evaluator
+        let myScore = evaluatePatterns(board: board, player: player)
+        let oppScore = evaluatePatterns(board: board, player: player.opponent)
+        return myScore - oppScore
+    }
+
+    // Pattern-based evaluator: counts lines with open/closed ends and broken-fours
+    private static func evaluatePatterns(board: Board, player: Player) -> Int {
+        let directions = [(0,1),(1,0),(1,1),(1,-1)]
+        var score = 0
+        for r in 0..<board.size {
+            for c in 0..<board.size {
+                if case .stone(player) = board.cells[r][c] {
+                    for (dr,dc) in directions {
+                        // Count contiguous in both directions and openness
+                        var count = 1
+                        var openEnds = 0
+                        var rr = r + dr, cc = c + dc
+                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player) = board.cells[rr][cc] {
+                            count += 1
+                            rr += dr; cc += dc
+                        }
+                        if rr >= 0 && rr < board.size && cc >= 0 && cc < board.size {
+                            if case .empty = board.cells[rr][cc] { openEnds += 1 }
+                        }
+                        rr = r - dr; cc = c - dc
+                        while rr >= 0 && rr < board.size && cc >= 0 && cc < board.size, case .stone(player) = board.cells[rr][cc] {
+                            count += 1
+                            rr -= dr; cc -= dc
+                        }
+                        if rr >= 0 && rr < board.size && cc >= 0 && cc < board.size {
+                            if case .empty = board.cells[rr][cc] { openEnds += 1 }
+                        }
+
+                        // Broken four: X X _ X X shape detection (one gap)
+                        let brokenFour = detectBrokenFour(board: board, player: player, row: r, col: c, dr: dr, dc: dc)
+
+                        switch (count, openEnds, brokenFour) {
+                        case (5, _, _): score += 1_000_000
+                        case (4, 2, _): score += 100_000 // open four
+                        case (4, 1, _): score += 20_000 // closed four
+                        case (_, _, true): score += 30_000 // broken four (threatening)
+                        case (3, 2, _): score += 5_000  // open three
+                        case (3, 1, _): score += 1_000  // closed three
+                        case (2, 2, _): score += 300
+                        case (2, 1, _): score += 80
+                        default: break
+                        }
+                    }
+                }
+            }
+        }
+        return score
+    }
+
+    private static func detectBrokenFour(board: Board, player: Player, row: Int, col: Int, dr: Int, dc: Int) -> Bool {
+        // Scan window of length 6 centered around (row,col) in (dr,dc) to find patterns like XX_XX
+        var stones: [Int] = [] // 1=mine, 0=empty, -1=other
+        stones.reserveCapacity(6)
+        let startOffset = -2
+        for i in 0..<6 {
+            let r = row + (startOffset + i) * dr
+            let c = col + (startOffset + i) * dc
+            if r < 0 || r >= board.size || c < 0 || c >= board.size {
+                stones.append(-2) // out of bounds sentinel
+                continue
+            }
+            switch board.cells[r][c] {
+            case .empty: stones.append(0)
+            case .stone(player): stones.append(1)
+            default: stones.append(-1)
+            }
+        }
+        // Look for sequences 1,1,0,1,1 within bounds (ignore -2)
+        for i in 0..<(stones.count - 4) {
+            let window = Array(stones[i..<(i+5)])
+            if window.contains(-2) { continue }
+            if window == [1,1,0,1,1] { return true }
+        }
+        return false
+    }
+
+    // MARK: - Zobrist Hashing
+    private static func zobristHash(board: Board) -> UInt64 {
+        // Deterministic pseudo-random numbers
+        struct RNG { static var state: UInt64 = 0x9E3779B97F4A7C15 }
+        func next() -> UInt64 {
+            RNG.state &+= 0x9E3779B97F4A7C15
+            var x = RNG.state
+            x = (x ^ (x >> 30)) &* 0xBF58476D1CE4E5B9
+            x = (x ^ (x >> 27)) &* 0x94D049BB133111EB
+            return x ^ (x >> 31)
+        }
+        // Cache table locally per call to avoid static init costs
+        var table: [[UInt64]] = Array(repeating: Array(repeating: 0, count: 2), count: board.size * board.size)
+        for i in 0..<(board.size * board.size) {
+            table[i][0] = next()
+            table[i][1] = next()
+        }
+        var h: UInt64 = 1469598103934665603 // FNV offset basis
+        for r in 0..<board.size {
+            for c in 0..<board.size {
+                let idx = r * board.size + c
+                switch board.cells[r][c] {
+                case .stone(.black): h ^= table[idx][0]
+                case .stone(.white): h ^= table[idx][1]
+                default: break
+                }
+            }
+        }
+        return h
     }
 }
