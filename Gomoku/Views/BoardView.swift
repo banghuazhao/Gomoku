@@ -11,7 +11,7 @@ struct BoardView: View {
     var body: some View {
         GeometryReader { geo in
             let size = min(geo.size.width, geo.size.height)
-            let cellSize = size / CGFloat(model.board.size + 1)
+            let cellSize = size / CGFloat(model.board.size)
             let padding = cellSize / 2
 
             ZStack {
@@ -24,7 +24,7 @@ struct BoardView: View {
                     .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
                 
                 Path { path in
-                    for i in 0...model.board.size {
+                    for i in 0..<model.board.size {
                         let p = CGFloat(i) * cellSize + padding
                         path.move(to: CGPoint(x: padding, y: p))
                         path.addLine(to: CGPoint(x: size - padding, y: p))
@@ -36,8 +36,8 @@ struct BoardView: View {
                 .shadow(color: .white.opacity(0.5), radius: 1, x: 1, y: 1)
 
                 // Star points (hoshi)
-                ForEach([3, model.board.size - 3], id: \.self) { row in
-                    ForEach([3, model.board.size - 3], id: \.self) { col in
+                ForEach([3, model.board.size - 4], id: \.self) { row in
+                    ForEach([3, model.board.size - 4], id: \.self) { col in
                         Circle()
                             .fill(Color.black)
                             .frame(width: 6, height: 6)
@@ -94,7 +94,7 @@ struct BoardView: View {
             .onTapGesture { location in
                 let origin = CGPoint(x: (geo.size.width - size) / 2, y: (geo.size.height - size) / 2)
                 let point = CGPoint(x: location.x - origin.x, y: location.y - origin.y)
-                guard point.x >= 0 && point.y >= 0 && point.x < size && point.y < size else { return }
+                guard point.x >= 0 && point.y >= 0 && point.x <= size && point.y <= size else { return }
                 let col = Int(point.x / cellSize)
                 let row = Int(point.y / cellSize)
                 if model.placeStone(row: row, col: col) {
