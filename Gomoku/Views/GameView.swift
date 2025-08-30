@@ -38,6 +38,7 @@ struct GameView: View {
 
                 Spacer()
             }
+            .frame(maxWidth: 800)
         }
         .onAppear {
             if model.board.size != boardSize {
@@ -126,6 +127,7 @@ struct GameView: View {
                                 model.winner == nil ? .white : .yellow
                             )
                             .font(.headline)
+                            .frame(width: 24, height: 24)
                         
                         Text(
                             model.winner == nil ? "Draw Game" : "Winner: \(model.winner == .black ? "Black" : "White")")

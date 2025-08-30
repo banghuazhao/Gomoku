@@ -24,6 +24,10 @@ class AudioManager: ObservableObject {
     }
     
     private init() {
+        // Default to true if the key doesn't exist in UserDefaults
+        if UserDefaults.standard.object(forKey: "soundEnabled") == nil {
+            UserDefaults.standard.set(true, forKey: "soundEnabled")
+        }
         self.isSoundEnabled = UserDefaults.standard.bool(forKey: "soundEnabled")
         setupAudioSession()
     }
