@@ -40,13 +40,18 @@ struct AIMoveGenerator {
     private static func candidatePositions(board: Board) -> [(row: Int, col: Int)] {
         var result: Set<Int> = []
         let size = board.size
-        let radius = 2
+        var radius = 2
         var hasStone = false
+        var stones = 0
         for r in 0..<size {
             for c in 0..<size {
-                if case .stone = board.cells[r][c] { hasStone = true }
+                if case .stone = board.cells[r][c] {
+                    hasStone = true
+                    stones += 1
+                }
             }
         }
+        if stones <= 1 { radius = 1 }
         if !hasStone { return [(row: size/2, col: size/2)] }
         for r in 0..<size {
             for c in 0..<size {
