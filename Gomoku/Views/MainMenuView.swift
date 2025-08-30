@@ -7,6 +7,7 @@ import SwiftUI
 struct MainMenuView: View {
     @State private var showingGame = false
     @State private var showingSettings = false
+    @State private var showingGameInfo = false
     @State private var gameMode: GameMode = .p2p
     
     enum GameMode {
@@ -56,6 +57,14 @@ struct MainMenuView: View {
                         }
                         
                         MenuButton(
+                            title: "Game Info",
+                            subtitle: "History, Rules & AI",
+                            icon: "info.circle.fill"
+                        ) {
+                            showingGameInfo = true
+                        }
+                        
+                        MenuButton(
                             title: "Settings",
                             subtitle: "Game Options",
                             icon: "gearshape.fill"
@@ -73,6 +82,9 @@ struct MainMenuView: View {
             }
             .navigationDestination(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            .navigationDestination(isPresented: $showingGameInfo) {
+                GameInfoView()
             }
             .onAppear {
                 AudioManager.shared.playBackgroundMusic()
