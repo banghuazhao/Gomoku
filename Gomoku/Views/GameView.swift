@@ -10,6 +10,7 @@ struct GameView: View {
     @AppStorage("aiDifficulty") private var difficultyRaw = "Medium"
     @AppStorage("boardSize") private var boardSize: Int = 15
     @AppStorage("whoGoesFirst") private var whoGoesFirst = "Player"
+    @State private var showingSettings = false
     let gameMode: MainMenuView.GameMode
 
     init(gameMode: MainMenuView.GameMode = .p2p) {
@@ -67,6 +68,9 @@ struct GameView: View {
             }
         }
         .navigationBarBackButtonHidden()
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
@@ -83,6 +87,15 @@ struct GameView: View {
             }
 
             ToolbarItemGroup(placement: .topBarTrailing) {
+                Button(action: {
+                    AudioManager.shared.playButtonTap()
+                    showingSettings = true
+                }) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.headline)
+                }
+                .buttonStyle(.woodStyle)
+
                 Button("Restart") {
                     AudioManager.shared.playButtonTap()
                     if gameMode == .singlePlayer {
