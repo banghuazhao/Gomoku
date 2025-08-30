@@ -56,7 +56,7 @@ struct SettingsView: View {
                         HStack(spacing: 5) {
                             Image(systemName: "chevron.left")
                                 .font(.headline)
-                            Text("Menu")
+                            Text("Back")
                         }
                     }
                     .buttonStyle(.woodStyle)

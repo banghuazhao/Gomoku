@@ -137,6 +137,16 @@ public final class GameModel: ObservableObject {
         guard let move = redoStack.popLast() else { return false }
         return placeStone(row: move.row, col: move.col)
     }
+    
+    public func getHint() -> Move? {
+        guard !isGameOver else { return nil }
+        return AIMoveGenerator.nextMove(for: board, player: currentPlayer, difficulty: .hard)
+    }
+    
+    public func placeHint() -> Bool {
+        guard let hintMove = getHint() else { return false }
+        return placeStone(row: hintMove.row, col: hintMove.col)
+    }
 
     public func history() -> [Move] {
         return moves

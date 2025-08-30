@@ -118,41 +118,63 @@ struct GameView: View {
 
     private var status: some View {
         HStack {
-            if model.isGameOver {
-                HStack(spacing: 8) {
-                    Image(systemName: model.winner == nil ? "equal.circle.fill" : "crown.fill")
-                        .foregroundColor(
-                            model.winner == nil ? .white : .yellow
-                        )
-                        .font(.headline)
-
-                    Text(
-                        model.winner == nil ? "Draw Game" : "Winner: \(model.winner == .black ? "Black" : "White")")
+            Group {
+                if model.isGameOver {
+                    HStack(spacing: 8) {
+                        Image(systemName: model.winner == nil ? "equal.circle.fill" : "crown.fill")
+                            .foregroundColor(
+                                model.winner == nil ? .white : .yellow
+                            )
+                            .font(.headline)
+                        
+                        Text(
+                            model.winner == nil ? "Draw Game" : "Winner: \(model.winner == .black ? "Black" : "White")")
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
-                }
-            } else {
-                HStack(spacing: 8) {
-                    Image(model.currentPlayer == .black ? .black : .white)
-                        .resizable()
-                        .frame(width: 24, height: 24)
-
-                    Text("\(model.currentPlayer == .black ? "Black turn" : "White turn")")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                    }
+                } else {
+                    HStack(spacing: 8) {
+                        Image(model.currentPlayer == .black ? .black : .white)
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                        
+                        Text("\(model.currentPlayer == .black ? "Black turn" : "White turn")")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                    }
                 }
             }
+            .frame(minWidth: 150)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(
+                Image(.board)
+                    .resizable()
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            )
+            
+            Spacer()
+            
+            // Hint button - only show when game is not over
+            if !model.isGameOver {
+                Button(action: {
+                    model.placeHint()
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "lightbulb.fill")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("Hint")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                    }
+                }
+                .buttonStyle(.woodStyle)
+            }
         }
-        .frame(minWidth: 150, minHeight: 32)
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(
-            Image(.board)
-                .resizable()
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-        )
     }
 }
 
