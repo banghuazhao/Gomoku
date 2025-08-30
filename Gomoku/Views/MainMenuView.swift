@@ -31,10 +31,6 @@ struct MainMenuView: View {
                             .font(.system(size: 48, weight: .bold, design: .serif))
                             .foregroundColor(.primary)
                             .shadow(color: .white.opacity(0.8), radius: 2, x: 1, y: 1)
-                        
-                        Text("五子棋")
-                            .font(.system(size: 24, weight: .medium))
-                            .foregroundColor(.secondary)
                     }
                     
                     Spacer()
