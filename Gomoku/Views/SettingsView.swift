@@ -179,7 +179,7 @@ struct SettingDifficultyRow: View {
 struct SettingBoardSizeRow: View {
     @Binding var selection: Int
 
-    private let options: [Int] = [9, 12, 15, 18]
+    private let options: [Int] = [13, 15, 17]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {

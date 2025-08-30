@@ -47,6 +47,14 @@ struct BoardView: View {
                             )
                     }
                 }
+                
+                Circle()
+                    .fill(Color.black)
+                    .frame(width: 6, height: 6)
+                    .position(
+                        x: CGFloat(model.board.size / 2) * cellSize + padding,
+                        y: CGFloat(model.board.size / 2) * cellSize + padding
+                    )
 
                 // Stones
                 ForEach(0..<model.board.size, id: \.self) { r in
