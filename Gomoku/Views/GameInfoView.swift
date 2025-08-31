@@ -107,6 +107,7 @@ struct GameInfoView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
