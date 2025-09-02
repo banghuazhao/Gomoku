@@ -14,6 +14,9 @@ struct GomokuApp: App {
         WindowGroup {
             MainMenuView()
                 .environmentObject(audioManager)
+                .onAppear {
+                    AdManager.requestATTPermission(with: 3)
+                }
         }
     }
 }
