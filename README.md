@@ -2,6 +2,12 @@
 
 A SwiftUI-based iOS implementation of the classic Gomoku (Five in a Row 五子棋) board game.
 
+## 📱 Available on the App Store
+
+[![Download on the App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/us/app/gomoku-five-in-a-row-ai/id6751761102)
+
+**Download now**: [Gomoku - Five in a Row AI](https://apps.apple.com/us/app/gomoku-five-in-a-row-ai/id6751761102)
+
 ## 🎮 About
 
 Gomoku is a strategic board game where two players take turns placing stones on a grid. The first player to get five stones in a row (horizontally, vertically, or diagonally) wins the game.
