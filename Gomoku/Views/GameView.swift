@@ -37,6 +37,10 @@ struct GameView: View {
                     .padding(.horizontal, 16)
 
                 Spacer()
+                
+                BannerView()
+                    .frame(height: 50)
+                    .padding(.bottom, 16)
             }
             .frame(maxWidth: 800)
         }

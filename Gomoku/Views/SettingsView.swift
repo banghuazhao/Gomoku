@@ -20,30 +20,34 @@ struct SettingsView: View {
                     .resizable()
                     .ignoresSafeArea()
                 
-                VStack(spacing: 30) {
-                    // Settings Content
-                    VStack(spacing: 25) {
-                        SettingBoardSizeRow(selection: $boardSize)
+                ScrollView {
+                    VStack(spacing: 30) {
+                        // Settings Content
+                        VStack(spacing: 25) {
+                            SettingBoardSizeRow(selection: $boardSize)
+                            
+                            SettingDifficultyRow(selection: $aiDifficulty)
+                            
+                            SettingWhoGoesFirstRow(selection: $whoGoesFirst)
+                            
+                            SettingToggleRow(
+                                title: "Sound Effects",
+                                isOn: $audioManager.isSoundEnabled,
+                                icon: "speaker.wave.2"
+                            )
+                            
+                            SettingToggleRow(
+                                title: "Haptic Feedback",
+                                isOn: $hapticsEnabled,
+                                icon: "hand.tap"
+                            )
+                        }
+                        .padding(20)
                         
-                        SettingDifficultyRow(selection: $aiDifficulty)
-                        
-                        SettingWhoGoesFirstRow(selection: $whoGoesFirst)
-                        
-                        SettingToggleRow(
-                            title: "Sound Effects",
-                            isOn: $audioManager.isSoundEnabled,
-                            icon: "speaker.wave.2"
-                        )
-                        
-                        SettingToggleRow(
-                            title: "Haptic Feedback",
-                            isOn: $hapticsEnabled,
-                            icon: "hand.tap"
-                        )
+                        BannerView()
+                            .frame(height: 50)
+                            .padding(.bottom, 16)
                     }
-                    .padding(20)
-                    
-                    Spacer()
                 }
             }
             .navigationBarBackButtonHidden()

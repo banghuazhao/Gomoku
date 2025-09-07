@@ -75,6 +75,10 @@ struct MainMenuView: View {
                     .padding(.horizontal, 40)
                     
                     Spacer()
+                    
+                    BannerView()
+                        .frame(height: 50)
+                        .padding(.bottom, 16)
                 }
             }
             .navigationDestination(isPresented: $showingGame) {
